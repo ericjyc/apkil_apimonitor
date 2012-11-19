@@ -1,0 +1,22 @@
+## Network
+Landroid/net/wifi/ScanResulti; 
+Landroid/net/wifi/WifiConfiguration;
+Landroid/net/wifi/WifiConfiguration.AuthAlgorithm;
+Landroid/net/wifi/WifiConfiguration.GroupCipher;
+Landroid/net/wifi/WifiConfiguration.KeyMgmt;
+Landroid/net/wifi/WifiConfiguration.PairwiseCipher;
+Landroid/net/wifi/WifiConfiguration.Protocol;
+Landroid/net/wifi/WifiConfiguration.Status; 
+Landroid/net/wifi/WifiInfo;
+Landroid/net/wifi/WifiManager;
+Landroid/net/wifi/WifiManager.MulticastLock; 
+Landroid/net/wifi/WifiManager.WifiLock; 
+Landroid/net/wifi/WpsInfo;
+
+Landroid/net/http/AndroidHttpClient;
+Landroid/net/http/HttpResponseCache; 
+Landroid/net/http/SslCertificate; 
+Landroid/net/http/SslCertificate.DName; 
+Landroid/net/http/SslError;
+
+

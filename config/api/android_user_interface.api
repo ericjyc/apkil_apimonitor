@@ -1,0 +1,100 @@
+## User Interface
+Landroid/view/AbsSavedState 
+Landroid/view/ActionMode 
+Landroid/view/ActionProvider 
+Landroid/view/Choreographer 
+Landroid/view/ContextThemeWrapper 
+Landroid/view/Display 
+Landroid/view/DragEvent 
+Landroid/view/FocusFinder 
+Landroid/view/GestureDetector 
+Landroid/view/GestureDetector.SimpleOnGestureListener 
+Landroid/view/Gravity 
+Landroid/view/HapticFeedbackConstants 
+Landroid/view/InputDevice 
+Landroid/view/InputDevice.MotionRange 
+Landroid/view/InputEvent 
+Landroid/view/InputQueue 
+Landroid/view/KeyCharacterMap 
+Landroid/view/KeyCharacterMap.KeyData 
+Landroid/view/KeyEvent 
+Landroid/view/KeyEvent.DispatcherState 
+Landroid/view/LayoutInflater 
+Landroid/view/MenuInflater 
+Landroid/view/MotionEvent 
+Landroid/view/MotionEvent.PointerCoords 
+Landroid/view/MotionEvent.PointerProperties 
+Landroid/view/OrientationEventListener 
+Landroid/view/OrientationListener 
+Landroid/view/ScaleGestureDetector 
+Landroid/view/ScaleGestureDetector.SimpleOnScaleGestureListener 
+Landroid/view/SoundEffectConstants 
+Landroid/view/Surface 
+Landroid/view/SurfaceView 
+Landroid/view/TextureView 
+Landroid/view/TouchDelegate 
+Landroid/view/VelocityTracker 
+Landroid/view/View 
+Landroid/view/View.AccessibilityDelegate 
+Landroid/view/View.BaseSavedState 
+Landroid/view/View.DragShadowBuilder 
+Landroid/view/View.MeasureSpec 
+Landroid/view/ViewConfiguration 
+Landroid/view/ViewDebug 
+Landroid/view/ViewGroup 
+Landroid/view/ViewGroup.LayoutParams 
+Landroid/view/ViewGroup.MarginLayoutParams 
+Landroid/view/ViewPropertyAnimator 
+Landroid/view/ViewStub 
+Landroid/view/ViewTreeObserver 
+Landroid/view/Window 
+Landroid/view/WindowManager.LayoutParams
+
+Landroid/view/animation;
+Landroid/view/inputmethod;
+Landroid/view/accessibility;
+Landroid/widget;
+
+## Application
+
+## Database
+
+## Input
+
+## Network
+#Landroid/net/wifi/ScanResulti; 
+#Landroid/net/wifi/WifiConfiguration;
+#Landroid/net/wifi/WifiConfiguration.AuthAlgorithm;
+#Landroid/net/wifi/WifiConfiguration.GroupCipher;
+#Landroid/net/wifi/WifiConfiguration.KeyMgmt;
+#Landroid/net/wifi/WifiConfiguration.PairwiseCipher;
+#Landroid/net/wifi/WifiConfiguration.Protocol;
+#Landroid/net/wifi/WifiConfiguration.Status; 
+#Landroid/net/wifi/WifiInfo;
+#Landroid/net/wifi/WifiManager;
+#Landroid/net/wifi/WifiManager.MulticastLock; 
+#Landroid/net/wifi/WifiManager.WifiLock; 
+#Landroid/net/wifi/WpsInfo;
+#
+#Landroid/net/http/AndroidHttpClient;
+#Landroid/net/http/HttpResponseCache; 
+#Landroid/net/http/SslCertificate; 
+#Landroid/net/http/SslCertificate.DName; 
+#Landroid/net/http/SslError;
+
+
+## Telephony
+
+## Media
+
+## OS
+
+## Utility
+
+## Graphics
+
+## Test
+
+## Misc
+
+

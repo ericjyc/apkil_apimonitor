@@ -26,7 +26,7 @@ from apkil import smali, monitor, logger
 from subprocess import call
 
 working_dir = sys.path[0]
-default_api = os.path.join(working_dir, "config", "default_api_collection")
+default_api = os.path.join(working_dir, "config", "api", "api_collections")
 
 parser = argparse.ArgumentParser(description=\
 'Repackage apk to monitor arbitrary APIs.')
@@ -95,7 +95,7 @@ dex_file.close()
 
 smali_jar = os.path.join(working_dir, "smali", "smali.jar")
 baksmali_jar = os.path.join(working_dir, "smali", "baksmali.jar")
-cert_path = os.path.join(working_dir, "config", "apkil.cert")
+cert_path = os.path.join(working_dir, "config", "cert", "apkil.cert")
 
 call(args=['java', '-jar', baksmali_jar,
 	   '-b', '-o', smalidir, dexpath])
