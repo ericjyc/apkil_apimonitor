@@ -1,6 +1,7 @@
 API Level: 16
 
-Nest class representation has to replace . with $
+- Nest class representation has to replace . with $
+- Class template needn't include '< >' 
 
 Use merge.script to merge API files
 

@@ -18,14 +18,14 @@ Landroid/database/DefaultDatabaseErrorHandler;
 Landroid/database/MatrixCursor;
 Landroid/database/MatrixCursor$RowBuilder;
 Landroid/database/MergeCursor;
-Landroid/database/Observable<T>;
+Landroid/database/Observable;
 
-Landrdoi/database/sqlite/SQLiteClosable;
-Landrdoi/database/sqlite/SQLiteCursor;
-Landrdoi/database/sqlite/SQLiteDatabase;
-Landrdoi/database/sqlite/SQLiteOpenHelper;
-Landrdoi/database/sqlite/SQLiteProgram;
-Landrdoi/database/sqlite/SQLiteQuery;
-Landrdoi/database/sqlite/SQLiteQueryBuilder;
-Landrdoi/database/sqlite/SQLiteStatement;
+Landroid/database/sqlite/SQLiteClosable;
+Landroid/database/sqlite/SQLiteCursor;
+Landroid/database/sqlite/SQLiteDatabase;
+Landroid/database/sqlite/SQLiteOpenHelper;
+Landroid/database/sqlite/SQLiteProgram;
+Landroid/database/sqlite/SQLiteQuery;
+Landroid/database/sqlite/SQLiteQueryBuilder;
+Landroid/database/sqlite/SQLiteStatement;
 
