@@ -64,7 +64,7 @@ api_config = args.api
 db_path = os.path.join(working_dir, "androidlib")
 mo = monitor.APIMonitor(db_path, config=api_config)
 
-new_apk = os.path.join(outdir, root_name + "_new.apk")
+new_apk = os.path.join(outdir, root_name + "_ins.apk")
 outdir = os.path.join(outdir, "apimonitor_out")
 
 if os.path.exists(outdir):
@@ -73,8 +73,8 @@ os.makedirs(outdir)
 
 dexpath = os.path.join(outdir, "origin.dex")
 smalidir = os.path.join(outdir, "origin_smali") 
-new_dexpath = os.path.join(outdir, "new.dex")
-new_smalidir = os.path.join(outdir, "new_smali")
+new_dexpath = os.path.join(outdir, "ins.dex")
+new_smalidir = os.path.join(outdir, "ins_smali")
 
 min_version = int(a.get_min_sdk_version())
 if a.get_target_sdk_version():

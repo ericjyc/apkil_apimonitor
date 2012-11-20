@@ -1,4 +1,4 @@
-## java.io
+## java$io
 
 Ljava/io/BufferedInputStream;
 Ljava/io/BufferedOutputStream;
@@ -27,9 +27,9 @@ Ljava/io/InputStreamReader;
 Ljava/io/LineNumberInputStream;
 Ljava/io/LineNumberReader;
 Ljava/io/ObjectInputStream;
-Ljava/io/ObjectInputStream.GetField;
+Ljava/io/ObjectInputStream$GetField;
 Ljava/io/ObjectOutputStream;
-Ljava/io/ObjectOutputStream.PutField;
+Ljava/io/ObjectOutputStream$PutField;
 Ljava/io/ObjectStreamClass;
 Ljava/io/ObjectStreamField;
 Ljava/io/OutputStream;
