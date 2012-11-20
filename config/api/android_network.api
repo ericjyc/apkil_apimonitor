@@ -39,7 +39,22 @@ Landroid/net/UrlQuerySanitizer.ParameterValuePair;
 Landroid/net/VpnService;
 Landroid/net/VpnService.Builder
 
-#Landroid/bluetooth
+Landroid/bluetooth/BluetoothA2dp 
+Landroid/bluetooth/BluetoothAdapter 
+Landroid/bluetooth/BluetoothAssignedNumbers 
+Landroid/bluetooth/BluetoothClass 
+Landroid/bluetooth/BluetoothClass.Device 
+Landroid/bluetooth/BluetoothClass.Device.Major 
+Landroid/bluetooth/BluetoothClass.Service 
+Landroid/bluetooth/BluetoothDevice 
+Landroid/bluetooth/BluetoothHeadset 
+Landroid/bluetooth/BluetoothHealth 
+Landroid/bluetooth/BluetoothHealthAppConfiguration 
+Landroid/bluetooth/BluetoothHealthCallback 
+Landroid/bluetooth/BluetoothServerSocket 
+Landroid/bluetooth/BluetoothSocket
+
+
 #Landroid/net/nsd
 #Landroid/net/rtp
 #Landroid/net/sip

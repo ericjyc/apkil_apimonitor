@@ -74,6 +74,21 @@ Landroid/view/animation/ScaleAnimation;
 Landroid/view/animation/Transformation;
 Landroid/view/animation/TranslateAnimation;
 
+Landroid/animation/Animator 
+Landroid/animation/AnimatorInflater 
+Landroid/animation/AnimatorListenerAdapter 
+Landroid/animation/AnimatorSet 
+Landroid/animation/AnimatorSet.Builder 
+Landroid/animation/ArgbEvaluator 
+Landroid/animation/FloatEvaluator 
+Landroid/animation/IntEvaluator 
+Landroid/animation/Keyframe 
+Landroid/animation/LayoutTransition 
+Landroid/animation/ObjectAnimator 
+Landroid/animation/PropertyValuesHolder 
+Landroid/animation/TimeAnimator 
+Landroid/animation/ValueAnimator
+
 Landroid/view/inputmethod/BaseInputConnection;
 Landroid/view/inputmethod/CompletionInfo;
 Landroid/view/inputmethod/CorrectionInfo;
