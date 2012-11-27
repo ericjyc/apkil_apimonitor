@@ -84,7 +84,10 @@ else:
 print "min_sdk_version=%d" % min_version
 print "target_sdk_version=%d" % target_version
 
-if (not args.level) or args.level[0] < min_version:
+if (not args.level):
+    level = target_version
+#else if (not args.level) or args.level[0] < min_version:
+elif args.level[0] < min_version:
     level = min_version
 else:
     level = args.level[0]
@@ -93,8 +96,8 @@ dex_file = open(dexpath, 'w')
 dex_file.write(a.get_dex())
 dex_file.close()
 
-smali_jar = os.path.join(working_dir, "smali", "smali.jar")
-baksmali_jar = os.path.join(working_dir, "smali", "baksmali.jar")
+smali_jar = os.path.join(working_dir, "smali", "smali-1.4.1.jar")
+baksmali_jar = os.path.join(working_dir, "smali", "baksmali-1.4.1.jar")
 cert_path = os.path.join(working_dir, "config", "cert", "apkil.cert")
 
 call(args=['java', '-jar', baksmali_jar,
