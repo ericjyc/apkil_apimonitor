@@ -185,37 +185,38 @@ class APIMonitor(object):
         # check and fix apis in API_LIST
         method_descs = []
         for m in self.entries:
-            c = ""
+            class_path = ""
             api_name = ""
             method_name = ""
 
             ia = m.find("->")
-            ilb = m.find('(')
+            m_name_end = m.find('(')
 
             if ia >= 0:
-                c = m[:ia]
-                if ilb >= 0:
-                    method_name = m[ia + 2:ilb]
-                    api_name = m[ia + 2:]
+                class_path = m[:ia]
+                m_name_start = ia + 2
+                if m_name_end >= 0:
+                    method_name = m[m_name_start:m_name_end]
+                    api_name = m[m_name_start:]
                 else:
-                    method_name = m[ia + 2:]
+                    method_name = m[m_name_start:]
             else:
-                c = m
+                class_path = m
 
-            if not self.android_api.classes.has_key(c):
+            if not self.android_api.classes.has_key(class_path):
                 print "[Warn] Class not found in API-%d db: %s" % (level, m)
                 continue
             # just class name
             if not method_name:
-                ms = self.android_api.classes[c].methods.keys()
+                ms = self.android_api.classes[class_path].methods.keys()
                 method_descs.extend(ms)
             # full signature
             elif api_name:
-                if not self.android_api.classes[c].methods.has_key(m):
+                if not self.android_api.classes[class_path].methods.has_key(m):
                     if method_name == "<init>":
                         print "[Warn] Method not found in API-%d db: %s" % (level, m)
                         continue
-                    c_obj = self.android_api.classes[c]
+                    c_obj = self.android_api.classes[class_path]
                     existed = False
                     q = c_obj.supers
                     while q:
@@ -237,14 +238,14 @@ class APIMonitor(object):
             # signature without parameters
             else:
                 own = False
-                if self.android_api.classes[c].methods_by_name.has_key(method_name):
-                    ms = self.android_api.classes[c].methods_by_name[method_name]
+                if self.android_api.classes[class_path].methods_by_name.has_key(method_name):
+                    ms = self.android_api.classes[class_path].methods_by_name[method_name]
                     method_descs.extend(ms)
                     own = True
 
                 if method_name == "<init>":
                     continue
-                c_obj = self.android_api.classes[c]
+                c_obj = self.android_api.classes[class_path]
                 existed = False
                 q = c_obj.supers
                 while q:
@@ -273,9 +274,10 @@ class APIMonitor(object):
         for m in self.method_descs:
             self.api_dict[m] = ""
             ia = m.find("->")
-            ilb = m.find('(')
-            if m[ia + 2:ilb] != "<init>":
-                self.api_name_dict[m[ia + 2:]] = m[:ia]
+            m_name_start = ia + 2
+            m_name_end = m.find('(')
+            if m[m_name_start:m_name_end] != "<init>":
+                self.api_name_dict[m[m_name_start:]] = m[:ia]
         print "Done!"
 
         print "Injecting..."
@@ -336,8 +338,9 @@ class APIMonitor(object):
                                 insn.obj.replace(new_on, self.method_map[md])
                         else:
                             ia = md.find("->")
+                            m_name_start = ia + 2
                             cn = md[:ia]
-                            api_name = smd[ia + 2:]
+                            api_name = smd[m_name_start:]
                             if self.api_name_dict.has_key(api_name):
                                 if self.android_api.classes.has_key(cn):
                                     if not self.android_api.classes[cn].methods.has_key(smd):
@@ -379,8 +382,9 @@ class APIMonitor(object):
                                 insn.obj.replace(new_on, self.method_map[md])
                         else:
                             ia = md.find("->")
+                            m_name_start = ia + 2
                             cn = md[:ia]
-                            api_name = smd[ia + 2:]
+                            api_name = smd[m_name_start:]
                             if self.api_name_dict.has_key(api_name):
                                 if self.android_api.classes.has_key(cn):
                                     if not self.android_api.classes[cn].methods.has_key(smd):
