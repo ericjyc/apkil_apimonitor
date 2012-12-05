@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright 2012, The Honeynet Project. All rights reserved.
-# Author: Kun Yang <kelwya@gmail.com>
-#
-# APKIL is free software: you can redistribute it and/or modify it under 
-# the terms of version 3 of the GNU Lesser General Public License as 
-# published by the Free Software Foundation.
-#
-# APKIL is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
-# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for 
-# more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with APKIL.  If not, see <http://www.gnu.org/licenses/>.
+## Copyright 2012, The Honeynet Project. All rights reserved.
+## Author: Kun Yang <kelwya@gmail.com>
+##
+## APKIL is free software: you can redistribute it and/or modify it under 
+## the terms of version 3 of the GNU Lesser General Public License as 
+## published by the Free Software Foundation.
+##
+## APKIL is distributed in the hope that it will be useful, but WITHOUT ANY
+## WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+## FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for 
+## more details.
+##
+## You should have received a copy of the GNU Lesser General Public License
+## along with APKIL.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 import os
@@ -175,14 +175,14 @@ class APIMonitor(object):
         return level
 
     def inject(self, smali_tree, level):
-        # get a copy of smali tree
+        ## get a copy of smali tree
         st = copy.deepcopy(smali_tree)
 
-        # load api database
+        ## load api database
         print "Loading and processing API database..."
         level = self.load_api(level)
         print "Target API Level: %d" % level
-        # check and fix apis in API_LIST
+        ## check and fix apis in API_LIST
         method_descs = []
         for m in self.entries:
             class_path = ""
@@ -206,11 +206,11 @@ class APIMonitor(object):
             if not self.android_api.classes.has_key(class_path):
                 print "[Warn] Class not found in API-%d db: %s" % (level, m)
                 continue
-            # just class name
+            ## just class name
             if not method_name:
                 ms = self.android_api.classes[class_path].methods.keys()
                 method_descs.extend(ms)
-            # full signature
+            ## full signature
             elif api_name:
                 if not self.android_api.classes[class_path].methods.has_key(m):
                     if method_name == "<init>":
@@ -235,7 +235,7 @@ class APIMonitor(object):
                         print "[Warn] Method not found in API-%d db: %s" % (level, m)
                 else:
                     method_descs.append(m)
-            # signature without parameters
+            ## signature without parameters
             else:
                 own = False
                 if self.android_api.classes[class_path].methods_by_name.has_key(method_name):
@@ -265,12 +265,11 @@ class APIMonitor(object):
 
         self.method_descs = list(set(method_descs))
 
-        """ 
-        print "**************************"
-        self.method_descs.sort()
-        print "\n".join(self.method_descs)
-        print "**************************"
-        """
+        #print "========================================="
+        #self.method_descs.sort()
+        #print "\n".join(self.method_descs)
+        #print "========================================="
+        
         for m in self.method_descs:
             self.api_dict[m] = ""
             ia = m.find("->")
@@ -282,7 +281,7 @@ class APIMonitor(object):
 
         print "Injecting..."
         for c in st.classes:
-            # create a structure to store class info defined in api.py
+            ## create a structure to store class info defined in api.py
             class_ = AndroidClass()
             class_.isAPI = False
 
@@ -291,17 +290,19 @@ class APIMonitor(object):
             class_.access = c.access
             if "interface" in c.access:
                 class_.supers.extend(c.implements)
-                for i in c.implements: 
-                    print c.name + " implements " + i 
+                #for i in c.implements: 
+                #    print c.name + " implements " + i 
             else:
                 class_.implements = c.implements
                 class_.supers.append(c.super_name)
-                print c.name + " inherits  " + c.super_name
+                #print c.name + " inherits  " + c.super_name
+                #for i in c.implements: 
+                #    print c.name + " implements " + i 
 
-            # methods in class
+            ## methods in class
             for m in c.methods:
                 #print m
-                # create a structure to store method info defined in api.py
+                ## create a structure to store method info defined in api.py
                 method = AndroidMethod()
                 method.isAPI = False
                 method.desc = "%s->%s" % (c.name, m.descriptor)
@@ -317,8 +318,9 @@ class APIMonitor(object):
 
         for c in st.classes:
             for m in c.methods:
+                print m
                 i = 0
-                # retrieve each statement in method
+                ## retrieve each statement in method
                 while i < len(m.insns):
                     insn = m.insns[i]
                     if insn.fmt == "35c":
@@ -337,12 +339,10 @@ class APIMonitor(object):
                                 r = insn_m.obj.registers.pop(0)
                                 m.insert_insn(insn_m, i , 0)
                                 i += 1
-                                """
-                                insn.obj.replace(new_on, self.method_map[md])
-                                r = insn.obj.registers.pop(0)
-                                m.insert_insn(InsnNode("move-result-object %s" % r), i + 1, 0)
-                                i += 1
-                                """
+                                #insn.obj.replace(new_on, self.method_map[md])
+                                #r = insn.obj.registers.pop(0)
+                                #m.insert_insn(InsnNode("move-result-object %s" % r), i + 1, 0)
+                                #i += 1
                             else:
                                 insn.obj.replace(new_on, self.method_map[md])
                         else:
@@ -379,14 +379,12 @@ class APIMonitor(object):
 
                                 m.insert_insn(insn_m, i , 0)
                                 i += 1
-                                """
-                                insn.obj.replace(new_on, self.method_map[md])
-                                r = insn.obj.reg_start
-                                nr = r[0] + str(int(r[1:]) + 1)
-                                insn.obj.set_reg_start(nr)
-                                m.insert_insn(InsnNode("move-result-object %s" % r), i + 1, 0)
-                                i += 1
-                                """
+                                #insn.obj.replace(new_on, self.method_map[md])
+                                #r = insn.obj.reg_start
+                                #nr = r[0] + str(int(r[1:]) + 1)
+                                #insn.obj.set_reg_start(nr)
+                                #m.insert_insn(InsnNode("move-result-object %s" % r), i + 1, 0)
+                                #i += 1
                             else:
                                 insn.obj.replace(new_on, self.method_map[md])
                         else:
@@ -429,11 +427,11 @@ class APIMonitor(object):
             self.stub_classes[segs[0]] = stub_class
             self.class_map[segs[0]] = "L" + PKG_PREFIX + "/" + segs[0][1:]
 
-            #.method public constructor <init>()V
-            #    .registers 1
-            #    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
-            #    return-void
-            #.end method
+            ##.method public constructor <init>()V
+            ##    .registers 1
+            ##    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+            ##    return-void
+            ##.end method
             method = MethodNode()
             method.set_desc("<init>()V")
             method.add_access(["public", "constructor"])
@@ -494,7 +492,7 @@ class APIMonitor(object):
                         % (ri, ri + 1))
         method.add_insn(append_i)
         
-        # print parameters
+        ## print parameters
         pi = 1
         for k in range(1, para_num):
             p = method.paras[k]
@@ -530,7 +528,7 @@ class APIMonitor(object):
         method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
         method.add_insn(append_i)
 
-        # print return value
+        ## print return value
         p = method.ret
         if p.void:
             method.add_insn(InsnNode("const-string v%d, \"%s\"" % (ri + 1, p.get_desc())))
@@ -621,7 +619,7 @@ class APIMonitor(object):
                         % (ri, ri + 1))
         method.add_insn(append_i)
         
-        # print parameters
+        ## print parameters
         pi = 0
         for k in range(0, para_num):
             p = method.paras[k]
@@ -655,7 +653,7 @@ class APIMonitor(object):
         method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
         method.add_insn(append_i)
 
-        # print return value
+        ## print return value
         p = method.ret
         if p.void:
             method.add_insn(InsnNode("const-string v%d, \"%s\"" % (ri + 1, p.get_desc())))
@@ -737,7 +735,7 @@ class APIMonitor(object):
                         % (ri, ri + 1))
         method.add_insn(append_i)
         
-        # print parameters
+        ## print parameters
         pi = 0
         for k in range(0, para_num):
             p = method.paras[k]
@@ -772,7 +770,7 @@ class APIMonitor(object):
         method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
         method.add_insn(append_i)
 
-        # print return value
+        ## print return value
         p = method.ret
         if p.void:
             method.add_insn(InsnNode("const-string v%d, \"%s\"" % (ri + 1, p.get_desc())))
@@ -838,7 +836,7 @@ class APIMonitor(object):
         i = m.find('(')
         self.method_map[m] = "L" + PKG_PREFIX + "/" + segs[0][1:] + "->" + method.get_desc()
 
-#invoke-static {v1}, Landroid/net/Uri;->parse(Ljava/lang/String;)Landroid/net/Uri;
+##invoke-static {v1}, Landroid/net/Uri;->parse(Ljava/lang/String;)Landroid/net/Uri;
     def __add_stub_static(self, stub_class, m):
         segs = m.rsplit("->", 1)
 
@@ -878,7 +876,7 @@ class APIMonitor(object):
                         % (ri, ri + 1))
         method.add_insn(append_i)
         
-        # print parameters
+        ## print parameters
         pi = 0
         for k in range(0, para_num):
             p = method.paras[k]
@@ -913,7 +911,7 @@ class APIMonitor(object):
         method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
         method.add_insn(append_i)
 
-        # print return value
+        ## print return value
         p = method.ret
         if p.void:
             method.add_insn(InsnNode("const-string v%d, \"%s\"" % (ri + 1, p.get_desc())))
