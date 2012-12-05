@@ -190,13 +190,13 @@ class APIMonitor(object):
             method_name = ""
 
             ia = m.find("->")
-            m_name_end = m.find('(')
+            ilb = m.find('(')
 
             if ia >= 0:
                 class_path = m[:ia]
                 m_name_start = ia + 2
-                if m_name_end >= 0:
-                    method_name = m[m_name_start:m_name_end]
+                if ilb >= 0:
+                    method_name = m[m_name_start:ilb]
                     api_name = m[m_name_start:]
                 else:
                     method_name = m[m_name_start:]
@@ -275,13 +275,14 @@ class APIMonitor(object):
             self.api_dict[m] = ""
             ia = m.find("->")
             m_name_start = ia + 2
-            m_name_end = m.find('(')
-            if m[m_name_start:m_name_end] != "<init>":
+            ilb = m.find('(')
+            if m[m_name_start:ilb] != "<init>":
                 self.api_name_dict[m[m_name_start:]] = m[:ia]
         print "Done!"
 
         print "Injecting..."
         for c in st.classes:
+            # create a structure to store class info defined in api.py
             class_ = AndroidClass()
             class_.isAPI = False
 
@@ -290,26 +291,34 @@ class APIMonitor(object):
             class_.access = c.access
             if "interface" in c.access:
                 class_.supers.extend(c.implements)
+                for i in c.implements: 
+                    print c.name + " implements " + i 
             else:
                 class_.implements = c.implements
                 class_.supers.append(c.super_name)
+                print c.name + " inherits  " + c.super_name
 
+            # methods in class
             for m in c.methods:
+                #print m
+                # create a structure to store method info defined in api.py
                 method = AndroidMethod()
                 method.isAPI = False
                 method.desc = "%s->%s" % (c.name, m.descriptor)
                 method.name = m.descriptor.split('(', 1)[0]
-                #print method.desc
                 method.sdesc = method.desc[:method.desc.rfind(')') + 1]
                 method.access = m.access
                 class_.methods[method.sdesc] = method 
+            
             self.android_api.add_class(class_)
+        
         self.android_api.build_connections(False)
         #self.android_api.show_not_API()
 
         for c in st.classes:
             for m in c.methods:
                 i = 0
+                # retrieve each statement in method
                 while i < len(m.insns):
                     insn = m.insns[i]
                     if insn.fmt == "35c":
