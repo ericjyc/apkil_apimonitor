@@ -607,6 +607,8 @@ class InsnNode(object):
             self.obj = Insn35c(line)
         elif self.fmt == "3rc":
             self.obj = Insn3rc(line)
+        #elif (self.fmt=="ret") and (len(segs)==2):
+        #    self.obj = segs[1]
 
         log("InsnNode: " + self.opcode_name + " parsed!")
 

@@ -277,11 +277,12 @@ class APIMonitor(object):
             ilb = m.find('(')
             if m[m_name_start:ilb] != "<init>":
                 self.api_name_dict[m[m_name_start:]] = m[:ia]
-        print "Done!"
+        print "API loading done."
 
         print "Injecting..."
+        ## build class and method information from the smali tree
         for c in st.classes:
-            ## create a structure to store class info defined in api.py
+            ## create an object to store class info defined in api.py
             class_ = AndroidClass()
             class_.isAPI = False
 
@@ -302,8 +303,9 @@ class APIMonitor(object):
             ## methods in class
             for m in c.methods:
                 #print m
-                ## create a structure to store method info defined in api.py
+                ## create an object to store method info defined in api.py
                 method = AndroidMethod()
+                ## method overriding/implementation from interface is not handled
                 method.isAPI = False
                 method.desc = "%s->%s" % (c.name, m.descriptor)
                 method.name = m.descriptor.split('(', 1)[0]
@@ -318,11 +320,33 @@ class APIMonitor(object):
 
         for c in st.classes:
             for m in c.methods:
-                print m
+                #print m.name + " " + str(len(m.insns))
                 i = 0
-                ## retrieve each statement in method
+               
+                #print "----"   # check
+                #print "Method: " + m.name   # check
+                #print m        # check
+
+                ## mark method entrance
+                ## abstract class & constructor needn't be instrumented
+                if (not "interface" in c.access) and (not m.name == "<init>"):
+                    ## Number of m.registers should be increased for safety but
+                    ## samli has set the limit of # of registers to 16. So we 
+                    ## try to be safe if possible. 
+                    ## registers = locals (v0, v1,...) + parameters (p0, p1,...)
+                    if m.registers < 16:
+                        m.set_registers(m.registers+1)
+                    vi = m.registers - m.get_paras_reg_num() - 1
+                    insn_m = InsnNode("invoke-static {v%d}, \
+                                Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V" % vi)
+                    m.insert_insn(insn_m)
+                    m.insert_insn(InsnNode("const-string v%d, \"%s\"" % (vi, ("enter "+m.name))))
+                    i += 2
+                
+                ## retrieve each statement in method ##########################
                 while i < len(m.insns):
                     insn = m.insns[i]
+                    ## instrument 35c #########################################
                     if insn.fmt == "35c":
                         md = insn.obj.method_desc
                         on = insn.opcode_name
@@ -358,10 +382,12 @@ class APIMonitor(object):
                                             self.api_dict[smd] = ""
                                             i -= 1
 
+                    ## instrument 3rc #########################################
                     elif insn.fmt == "3rc":
                         md = insn.obj.method_desc
                         on = insn.opcode_name
                         smd = md[:md.rfind(')') + 1]
+                        #print "3rc: " + md  # check
                         if self.api_dict.has_key(smd):
                             method_type = METHOD_TYPE_BY_OPCODE[on]
                             new_on = OPCODE_MAP[on]
@@ -399,7 +425,36 @@ class APIMonitor(object):
                                         if api_cn in self.android_api.classes[cn].ancestors:
                                             self.api_dict[smd] = ""
                                             i -= 1
+                    
+                    ## return statement ########################################
+                    #elif insn.fmt == "ret":
+                    #    if (not "interface" in c.access) and (not m.name == "<init>"):
+                    #        ## registers = locals (v0, v1,...) + parameters (p0, p1,...)
+                    #        if insn.opcode_name == "return-void":    # no return value
+                    #            vi = m.registers - m.get_paras_reg_num() - 1
+                    #            insn_m = InsnNode("invoke-static {v%d}, \
+                    #                        Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V" % vi)
+                    #            m.insert_insn(insn_m)
+                    #            m.insert_insn(InsnNode("const-string v%d, \"%s\"" % (vi, ("exit "+m.name))))
+                    #            i += 2
+                            #elif (insn.opcode_name == "return-object") or \
+                            #     (insn.opcode_name == "return-wide") or \
+                            #     (insn.opcode_name == "return"):
+                            #    print "[ret] " + insn.obj
+                            #    #vi = m.registers - m.get_paras_reg_num() - 1
+                            #    #insn_m = InsnNode("invoke-static {v%d}, \
+                            #    #            Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V" % vi)
+                            #else:
+                            #    print "[error] weird opcode name for a return stmt: %s" % insn.opcode_name 
+                            #    sys.exit(1)
+                    
+                    ## other statements ########################################
+                    #else:
+                    #    print insn
+
+                    ## next loop ###############################################
                     i += 1
+                ## end of instrumentation ######################################
 
         for c in self.stub_classes.values():
             st.add_class(c)
@@ -496,8 +551,7 @@ class APIMonitor(object):
         pi = 1
         for k in range(1, para_num):
             p = method.paras[k]
-            method.add_insn(InsnNode("const-string v%d, \"%s=\"" % (ri + 1,
-                                     p.get_desc())))
+            method.add_insn(InsnNode("const-string v%d, \"%s=\"" % (ri + 1, p.get_desc())))
             method.add_insn(append_i)
 
             if p.basic and p.dim == 0:
