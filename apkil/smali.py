@@ -30,11 +30,17 @@ INSN_FMT = {
         "invoke-direct": "35c",
         "invoke-static": "35c",
         "invoke-interface": "35c",
+
         "invoke-virtual/range": "3rc",
         "invoke-super/range": "3rc",
         "invoke-direct/range": "3rc",
         "invoke-static/range": "3rc",
-        "invoke-interface/range": "3rc"
+        "invoke-interface/range": "3rc",
+
+        "return": "ret",
+        "return-void": "ret",
+        "return-wide": "ret",
+        "return-object": "ret"
         }
 
 BASIC_TYPES = {
@@ -350,8 +356,8 @@ class MethodNode(object):
 
 
     def __repr__(self):
-        return "    Method: %s %s\n        registers: %d\n%s" % \
-                (' '.join(self.access), self.descriptor, self.registers, \
+        return "    Method: %s %s\n        parameters: %d\n        registers: %d\n%s" % \
+                (' '.join(self.access), self.descriptor, self.get_paras_reg_num(), self.registers, \
                 ''.join(["%13d %s" % \
                 (self.insns.index(i), repr(i)) for i in self.insns]))
 
@@ -541,6 +547,8 @@ class MethodNode(object):
         self.descriptor += self.ret.get_desc()
 
     def insert_insn(self, insn, index=0, direction=0):
+        ## insert insn BEFORE index (default to prefix the list)
+        ## instruction list will be updated immediately
         self.insns.insert(index, insn)
         for l in self.labels.values():
             if l.index >= index + direction:
