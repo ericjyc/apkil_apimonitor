@@ -607,13 +607,13 @@ class InsnNode(object):
             self.obj = Insn35c(line)
         elif self.fmt == "3rc":
             self.obj = Insn3rc(line)
-        #elif (self.fmt=="ret") and (len(segs)==2):
-        #    self.obj = segs[1]
+        elif (self.fmt=="ret") and (len(segs)==2):
+            self.obj = segs[1]
 
         log("InsnNode: " + self.opcode_name + " parsed!")
 
     def reload(self):
-        if self.obj:
+        if (not self.fmt=="ret") and self.obj:
             self.obj.reload()
             self.buf = self.obj.buf
         else:

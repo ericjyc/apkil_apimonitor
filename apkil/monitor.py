@@ -320,7 +320,6 @@ class APIMonitor(object):
 
         for c in st.classes:
             for m in c.methods:
-                #print m.name + " " + str(len(m.insns))
                 i = 0
                
                 #print "----"   # check
@@ -432,26 +431,28 @@ class APIMonitor(object):
                                             i -= 1
                     
                     ## return statement ########################################
-                    #elif insn.fmt == "ret":
-                    #    if (not "interface" in c.access) and (not m.name == "<init>"):
-                    #        ## registers = locals (v0, v1,...) + parameters (p0, p1,...)
-                    #        if insn.opcode_name == "return-void":    # no return value
-                    #            vi = m.registers - m.get_paras_reg_num() - 1
-                    #            insn_m = InsnNode("invoke-static {v%d}, \
-                    #                        Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V" % vi)
-                    #            m.insert_insn(insn_m)
-                    #            m.insert_insn(InsnNode("const-string v%d, \"%s\"" % (vi, ("exit "+m.name))))
-                    #            i += 2
-                            #elif (insn.opcode_name == "return-object") or \
-                            #     (insn.opcode_name == "return-wide") or \
-                            #     (insn.opcode_name == "return"):
-                            #    print "[ret] " + insn.obj
-                            #    #vi = m.registers - m.get_paras_reg_num() - 1
-                            #    #insn_m = InsnNode("invoke-static {v%d}, \
-                            #    #            Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V" % vi)
-                            #else:
-                            #    print "[error] weird opcode name for a return stmt: %s" % insn.opcode_name 
-                            #    sys.exit(1)
+                    elif insn.fmt == "ret":
+                        if (not "interface" in c.access) and (not m.name == "<init>"):
+                            if insn.opcode_name == "return-void":    # no return value
+                                insn_m = InsnNode("invoke-static {v0}, \
+                                            Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
+                                m.insert_insn(insn_m, i, 0)
+                                m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                i += 2
+                            elif (insn.opcode_name == "return-object") or \
+                                 (insn.opcode_name == "return-wide") or \
+                                 (insn.opcode_name == "return"):
+                                #print "[ret] " + insn.obj
+                                m.insert_insn(InsnNode("move-object %s, v1" % insn.obj), i, 0)
+                                insn_m = InsnNode("invoke-static {v0}, \
+                                            Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
+                                m.insert_insn(insn_m, i, 0)
+                                m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                m.insert_insn(InsnNode("move-object v1, %s" % insn.obj), i, 0)
+                                i += 4 
+                            else:
+                                print "[error] weird opcode name for a return stmt: %s" % insn.opcode_name 
+                                sys.exit(1)
                     
                     ## other statements ########################################
                     #else:
