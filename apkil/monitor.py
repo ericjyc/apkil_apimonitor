@@ -328,7 +328,9 @@ class APIMonitor(object):
 
                 ## instrument method entrance
                 ## abstract class & constructor needn't be instrumented
-                if (not "interface" in c.access) and (not m.name == "<init>"): 
+                if (not "interface" in c.access) and \
+                   (not "abstract" in c.access) and \
+                   (not m.name == "<init>"): 
                     ## Number of m.registers should be increased for safety but
                     ## samli has set the limit of # of registers to 16.  
                     ## registers = locals (v0, v1,...) + parameters (p0, p1,...)
@@ -432,7 +434,9 @@ class APIMonitor(object):
                     
                     ## instrument method exit##################################
                     elif insn.fmt == "ret":
-                        if (not "interface" in c.access) and (not m.name == "<init>"):
+                        if (not "interface" in c.access) and \
+                           (not "abstract" in c.access) and \
+                           (not m.name == "<init>"):
                             if insn.opcode_name == "return-void":    # no return value
                                 insn_m = InsnNode("invoke-static {v0}, \
                                             Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
