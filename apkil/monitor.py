@@ -326,7 +326,7 @@ class APIMonitor(object):
                 #print "Method: " + m.name + " " + str(m.get_paras_reg_num()) + " " + str(m.registers)   # check
                 #print m        # check
 
-                ## mark method entrance
+                ## instrument method entrance
                 ## abstract class & constructor needn't be instrumented
                 if (not "interface" in c.access) and (not m.name == "<init>"): 
                     ## Number of m.registers should be increased for safety but
@@ -430,7 +430,7 @@ class APIMonitor(object):
                                             self.api_dict[smd] = ""
                                             i -= 1
                     
-                    ## return statement ########################################
+                    ## instrument method exit##################################
                     elif insn.fmt == "ret":
                         if (not "interface" in c.access) and (not m.name == "<init>"):
                             if insn.opcode_name == "return-void":    # no return value
