@@ -324,24 +324,29 @@ class APIMonitor(object):
                 i = 0
                
                 #print "----"   # check
-                #print "Method: " + m.name   # check
+                #print "Method: " + m.name + " " + str(m.get_paras_reg_num()) + " " + str(m.registers)   # check
                 #print m        # check
 
                 ## mark method entrance
                 ## abstract class & constructor needn't be instrumented
-                if (not "interface" in c.access) and (not m.name == "<init>"):
+                if (not "interface" in c.access) and (not m.name == "<init>"): 
                     ## Number of m.registers should be increased for safety but
-                    ## samli has set the limit of # of registers to 16. So we 
-                    ## try to be safe if possible. 
+                    ## samli has set the limit of # of registers to 16.  
                     ## registers = locals (v0, v1,...) + parameters (p0, p1,...)
                     if m.registers < 16:
                         m.set_registers(m.registers+1)
-                    vi = m.registers - m.get_paras_reg_num() - 1
-                    insn_m = InsnNode("invoke-static {v%d}, \
-                                Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V" % vi)
+                    insn_m = InsnNode("invoke-static {v0}, \
+                                Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
                     m.insert_insn(insn_m)
-                    m.insert_insn(InsnNode("const-string v%d, \"%s\"" % (vi, ("enter "+m.name))))
+                    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("enter "+m.name)))
                     i += 2
+                
+                #    insn_m = InsnNode("invoke-static {v0, v1}, \
+                #                Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I")
+                #    m.insert_insn(insn_m)
+                #    m.insert_insn(InsnNode("const-string v1, \"%s\"" % ("enter "+m.name)))
+                #    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("")))
+                #    i += 3
                 
                 ## retrieve each statement in method ##########################
                 while i < len(m.insns):
