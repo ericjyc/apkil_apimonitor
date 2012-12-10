@@ -331,10 +331,8 @@ class APIMonitor(object):
                 if (not "interface" in c.access) and \
                    (not "abstract" in c.access) and \
                    (not m.name == "<init>"): 
-                    ## Number of m.registers should be increased for safety but
-                    ## samli has set the limit of # of registers to 16.  
-                    ## registers = locals (v0, v1,...) + parameters (p0, p1,...)
-                    if m.registers < 16:
+                    ## registers = locals (v0, v1,...) + self (p0) + parameters (p1,...)
+                    if m.registers < (m.get_paras_reg_num()+2):
                         m.set_registers(m.registers+1)
                     insn_m = InsnNode("invoke-static {v0}, \
                                 Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
@@ -433,6 +431,7 @@ class APIMonitor(object):
                                             i -= 1
                     
                     ## instrument method exit##################################
+                    ## ref: http://source.android.com/tech/dalvik/dalvik-bytecode.html
                     elif insn.fmt == "ret":
                         if (not "interface" in c.access) and \
                            (not "abstract" in c.access) and \
@@ -443,17 +442,61 @@ class APIMonitor(object):
                                 m.insert_insn(insn_m, i, 0)
                                 m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
                                 i += 2
+                            elif insn.obj == "v0":    # return value on local register v0
+                                ## return from an object-returning method
+                                if insn.opcode_name == "return-object":
+                                #print "[ret] " + insn.obj
+                                    #print "[ret] " + insn.obj 
+                                    m.insert_insn(InsnNode("move-object %s, v1" % insn.obj), i, 0)
+                                    insn_m = InsnNode("invoke-static {v0}, \
+                                                Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
+                                    m.insert_insn(insn_m, i, 0)
+                                    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                    m.insert_insn(InsnNode("move-object v1, %s" % insn.obj), i, 0)
+                                    i += 4 
+                                ## return value on local register other than v0 or return parameter value
+                                #else:   
+                                #    insn_m = InsnNode("invoke-static {v0}, \
+                                #                Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
+                                #    m.insert_insn(insn_m, i, 0)
+                                #    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                #    i += 2
+                                ## return from a double-width (64-bit) value-returning method
+                                elif insn.opcode_name == "return-wide": 
+                                    #print "[ret] " + insn.obj
+                                    m.insert_insn(InsnNode("move-wide %s, v1" % insn.obj), i, 0)
+                                    insn_m = InsnNode("invoke-static {v0}, \
+                                                Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
+                                    m.insert_insn(insn_m, i, 0)
+                                    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                    m.insert_insn(InsnNode("move-wide v1, %s" % insn.obj), i, 0)
+                                    i += 4 
+                                ## return value on local register other than v0 or return parameter value
+                                #else:   
+                                #    insn_m = InsnNode("invoke-static {v0}, \
+                                #                Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
+                                #    m.insert_insn(insn_m, i, 0)
+                                #    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                #    i += 2 
+                                ## return from a single-width (32-bit) non-object value-returning method 
+                                elif insn.opcode_name == "return":
+                                    #print "[ret] " + insn.obj
+                                    m.insert_insn(InsnNode("move %s, v1" % insn.obj), i, 0)
+                                    insn_m = InsnNode("invoke-static {v0}, \
+                                                Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
+                                    m.insert_insn(insn_m, i, 0)
+                                    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                    m.insert_insn(InsnNode("move v1, %s" % insn.obj), i, 0)
+                                    i += 4 
+                            ## return value on local register other than v0 or return parameter value
                             elif (insn.opcode_name == "return-object") or \
                                  (insn.opcode_name == "return-wide") or \
                                  (insn.opcode_name == "return"):
-                                #print "[ret] " + insn.obj
-                                m.insert_insn(InsnNode("move-object %s, v1" % insn.obj), i, 0)
                                 insn_m = InsnNode("invoke-static {v0}, \
                                             Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
                                 m.insert_insn(insn_m, i, 0)
                                 m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
-                                m.insert_insn(InsnNode("move-object v1, %s" % insn.obj), i, 0)
-                                i += 4 
+                                i += 2 
                             else:
                                 print "[error] weird opcode name for a return stmt: %s" % insn.opcode_name 
                                 sys.exit(1)
