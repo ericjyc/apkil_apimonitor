@@ -83,7 +83,7 @@ class SmaliTree(object):
                 "".join([repr(class_) for class_ in self.classes]))
 
     def __parse(self, foldername):
-        print "Parsing %s..." % foldername
+        print "\n[Parse smali tree]\n%s..." % foldername
         self.foldername = foldername
         for (path, dirs, files) in os.walk(self.foldername):
             for f in files:
@@ -97,7 +97,7 @@ class SmaliTree(object):
                 self.classes.append(ClassNode(name))
         # print repr(self.smali_files)
         log("SmaliTree parsed!")
-        print "Done!"
+        print "Done."
 
     def get_class(self, class_name):
         result = [c for c in self.classes if c.name == class_name]
@@ -119,13 +119,13 @@ class SmaliTree(object):
         pass
 
     def save(self, new_foldername):
-        print "Saving %s..." % new_foldername
+        print "\n[Save]\n%s..." % new_foldername
         if os.path.exists(new_foldername):
             shutil.rmtree(new_foldername)
         os.makedirs(new_foldername)
         for c in self.classes:
             c.save(new_foldername)
-        print "Done"
+        print "Done."
 
     def export_apk(self):
         self.save("./out")

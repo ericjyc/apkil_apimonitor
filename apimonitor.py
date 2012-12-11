@@ -81,6 +81,7 @@ if a.get_target_sdk_version():
     target_version = int(a.get_target_sdk_version())
 else:
     target_version = min_version
+print "\n[API info]"
 print "min_sdk_version=%d" % min_version
 print "target_sdk_version=%d" % target_version
 
@@ -117,5 +118,8 @@ a.new_zip(filename=new_apk,
             deleted_files="(META-INF/.)", new_files = {
             "classes.dex" : new_dex } )
 apk.sign_apk(new_apk, cert_path, "apkil", "apkilapkil" )
-print "NEW APK: %s" % new_apk
+print "\n[Instrumented apk]\n%s" % new_apk
+
+print "\n[Install new apk]"
+os.system("./install.script " + new_apk)
 

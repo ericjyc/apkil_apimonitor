@@ -119,6 +119,13 @@ OPCODE_MAP = {
     "invoke-static/range": "invoke-static/range",
     "invoke-interface/range": "invoke-static/range"
     }
+        
+## method tracking list
+TRACKING_LIST = [
+    "<init>", "onCreate", "onStart", "onRestart", "onResume", "onPause", "onStop", "onDestroy", \
+    "onClick", "onUserInteraction"
+    ]
+
 
 class APIMonitor(object):
 
@@ -179,9 +186,9 @@ class APIMonitor(object):
         st = copy.deepcopy(smali_tree)
 
         ## load api database
-        print "Loading and processing API database..."
+        print "\n[Process API database]"
         level = self.load_api(level)
-        print "Target API Level: %d" % level
+        print "Target API level: %d" % level
         ## check and fix apis in API_LIST
         method_descs = []
         for m in self.entries:
@@ -279,7 +286,7 @@ class APIMonitor(object):
                 self.api_name_dict[m[m_name_start:]] = m[:ia]
         print "API loading done."
 
-        print "Injecting..."
+        print "\n[Inject apk]"
         ## build class and method information from the smali tree
         for c in st.classes:
             ## create an object to store class info defined in api.py
@@ -328,16 +335,17 @@ class APIMonitor(object):
 
                 ## instrument method entrance
                 ## abstract class & constructor needn't be instrumented
-                if (not "interface" in c.access) and \
-                   (not "abstract" in c.access) and \
-                   (not m.name == "<init>"): 
+                if (not "interface" in c.access) and (not "abstract" in c.access) and \
+                   (m.name in TRACKING_LIST):
+                   #(not m.name == "<init>"): 
+                    print "Track: " + c.name + " " + m.name 
                     ## registers = locals (v0, v1,...) + self (p0) + parameters (p1,...)
                     if m.registers < (m.get_paras_reg_num()+2):
                         m.set_registers(m.registers+1)
                     insn_m = InsnNode("invoke-static {v0}, \
                                 Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
                     m.insert_insn(insn_m)
-                    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("enter "+m.name)))
+                    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("+ "+c.name+" "+m.name)))
                     i += 2
                 
                 #    insn_m = InsnNode("invoke-static {v0, v1}, \
@@ -433,14 +441,15 @@ class APIMonitor(object):
                     ## instrument method exit##################################
                     ## ref: http://source.android.com/tech/dalvik/dalvik-bytecode.html
                     elif insn.fmt == "ret":
-                        if (not "interface" in c.access) and \
-                           (not "abstract" in c.access) and \
-                           (not m.name == "<init>"):
+                        if (not "interface" in c.access) and (not "abstract" in c.access) and \
+                           (m.name in TRACKING_LIST):
+                           #(not m.name == "<init>"):
                             if insn.opcode_name == "return-void":    # no return value
                                 insn_m = InsnNode("invoke-static {v0}, \
                                             Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
                                 m.insert_insn(insn_m, i, 0)
-                                m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                m.insert_insn(InsnNode("const-string v0, \"%s\"" \
+                                                    % ("- "+c.name+" "+m.name)), i, 0)
                                 i += 2
                             elif insn.obj == "v0":    # return value on local register v0
                                 ## return from an object-returning method
@@ -451,16 +460,10 @@ class APIMonitor(object):
                                     insn_m = InsnNode("invoke-static {v0}, \
                                                 Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
                                     m.insert_insn(insn_m, i, 0)
-                                    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                    m.insert_insn(InsnNode("const-string v0, \"%s\"" \
+                                                        % ("- "+c.name+" "+m.name)), i, 0)
                                     m.insert_insn(InsnNode("move-object v1, %s" % insn.obj), i, 0)
                                     i += 4 
-                                ## return value on local register other than v0 or return parameter value
-                                #else:   
-                                #    insn_m = InsnNode("invoke-static {v0}, \
-                                #                Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
-                                #    m.insert_insn(insn_m, i, 0)
-                                #    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
-                                #    i += 2
                                 ## return from a double-width (64-bit) value-returning method
                                 elif insn.opcode_name == "return-wide": 
                                     #print "[ret] " + insn.obj
@@ -468,16 +471,10 @@ class APIMonitor(object):
                                     insn_m = InsnNode("invoke-static {v0}, \
                                                 Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
                                     m.insert_insn(insn_m, i, 0)
-                                    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                    m.insert_insn(InsnNode("const-string v0, \"%s\"" \
+                                                        % ("- "+c.name+" "+m.name)), i, 0)
                                     m.insert_insn(InsnNode("move-wide v1, %s" % insn.obj), i, 0)
                                     i += 4 
-                                ## return value on local register other than v0 or return parameter value
-                                #else:   
-                                #    insn_m = InsnNode("invoke-static {v0}, \
-                                #                Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
-                                #    m.insert_insn(insn_m, i, 0)
-                                #    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
-                                #    i += 2 
                                 ## return from a single-width (32-bit) non-object value-returning method 
                                 elif insn.opcode_name == "return":
                                     #print "[ret] " + insn.obj
@@ -485,7 +482,8 @@ class APIMonitor(object):
                                     insn_m = InsnNode("invoke-static {v0}, \
                                                 Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
                                     m.insert_insn(insn_m, i, 0)
-                                    m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                    m.insert_insn(InsnNode("const-string v0, \"%s\"" \
+                                                        % ("- "+c.name+" "+m.name)), i, 0)
                                     m.insert_insn(InsnNode("move v1, %s" % insn.obj), i, 0)
                                     i += 4 
                             ## return value on local register other than v0 or return parameter value
@@ -495,7 +493,8 @@ class APIMonitor(object):
                                 insn_m = InsnNode("invoke-static {v0}, \
                                             Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
                                 m.insert_insn(insn_m, i, 0)
-                                m.insert_insn(InsnNode("const-string v0, \"%s\"" % ("exit "+m.name)), i, 0)
+                                m.insert_insn(InsnNode("const-string v0, \"%s\"" \
+                                                    % ("- "+c.name+" "+m.name)), i, 0)
                                 i += 2 
                             else:
                                 print "[error] weird opcode name for a return stmt: %s" % insn.opcode_name 
@@ -513,7 +512,7 @@ class APIMonitor(object):
             st.add_class(c)
 
         st.add_class(self.helper)
-        print "Done!"
+        print "Done."
 
         return st
 

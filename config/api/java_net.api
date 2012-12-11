@@ -31,7 +31,7 @@ Ljava/net/Socket;
 Ljava/net/SocketAddress;
 Ljava/net/SocketImpl;
 Ljava/net/SocketPermission;
-Ljava/net/URI;
+#Ljava/net/URI;
 Ljava/net/URL;
 Ljava/net/URLClassLoader;
 Ljava/net/URLConnection;

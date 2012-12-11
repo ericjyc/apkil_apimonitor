@@ -10,7 +10,7 @@ Landroid/util/EventLog;
 Landroid/util/EventLog$Event;
 Landroid/util/EventLogTags;
 Landroid/util/EventLogTags$Description;
-Landroid/util/FloatMath;
+#Landroid/util/FloatMath;
 Landroid/util/JsonReader;
 Landroid/util/JsonWriter;
 Landroid/util/Log;
