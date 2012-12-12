@@ -53,7 +53,7 @@ const-string v0, "\r"
 const-string v1, "\\\\r"
 invoke-virtual {p0, v0, v1}, Ljava/lang/String;->replaceAll(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 move-result-object p0
-const-string v0, "DroidBox"
+const-string v0, "DBox"
 invoke-static {v0, p0}, Landroid/util/Log;->v(Ljava/lang/String;Ljava/lang/String;)I
 return-void
 .end method
@@ -135,7 +135,8 @@ APP_LIFECYCLE = [
     ]
 
 TRACKING_LIST = [
-    "onClick", "onTouch" 
+    "onClick", "onLongClick", "onFocusChange", \
+    "onKey", "onTouch", "onCreateContextMenu"
     ]
 
 
@@ -355,22 +356,33 @@ class APIMonitor(object):
                     if m.registers < (m.get_paras_reg_num()+3):    
                         m.set_registers(m.get_paras_reg_num()+3)
                     
-                    # instrumentation needs to be done in reverse order
                     log_m = InsnNode("invoke-static {v0}, \
                                 Ldroidbox/apimonitor/Helper;->log(Ljava/lang/String;)V")
                     concat_s = InsnNode("invoke-virtual {v0, v1}, \
                                     Ljava/lang/String;->concat(Ljava/lang/String;)Ljava/lang/String;")
-                    # get timestamp
+                    ## get timestamp
                     time_m = InsnNode("invoke-static {}, \
                                 Ldroidbox/apimonitor/Helper;->elapsedRealtime()Ljava/lang/String;")
                     
+                    ## instrumentation needs to be done in reverse order
                     m.insert_insn(log_m)
                     m.insert_insn(InsnNode("move-result-object v0"))
                     m.insert_insn(concat_s)
                     m.insert_insn(InsnNode("move-result-object v0"))
                     m.insert_insn(time_m)
-                    m.insert_insn(InsnNode("const-string v1, \"%s\"" % (" + "+c.name+" "+m.name)))
-                    i += 6
+                    if m.name in TRACKING_LIST:
+                        m.insert_insn(InsnNode("move-result-object v1"))
+                        m.insert_insn(concat_s)
+                        m.insert_insn(InsnNode("const-string v0, \"%s\"" % (" + "+c.name+" "+m.name+"->")))
+                        ## get the 1st parameter (usually the action targeted object)
+                        m.insert_insn(InsnNode("move-result-object v1"))
+                        insn_m = InsnNode("invoke-static {p1}, \
+                                    Ldroidbox/apimonitor/Helper;->toString(Ljava/lang/Object;)Ljava/lang/String;")
+                        m.insert_insn(insn_m)
+                        i +=10
+                    else:
+                        m.insert_insn(InsnNode("const-string v1, \"%s\"" % (" + "+c.name+" "+m.name)))
+                        i +=6
                 
                 #    insn_m = InsnNode("invoke-static {v0, v1}, \
                 #                Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I")
