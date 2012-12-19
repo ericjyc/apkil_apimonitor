@@ -130,13 +130,26 @@ OPCODE_MAP = {
         
 ## method tracking list
 APP_LIFECYCLE = [
-    "<init>", "onCreate", "onStart", "onRestart", \
-    "onResume", "onPause", "onStop", "onDestroy"
+    #"<init>",
+    "onCreate", "onStart", "onRestart", \
+    "onResume", "onPause", "onStop", "onDestroy", \
+    "onSaveInstanceState", "onRestoreInstanceState"
     ]
 
 TRACKING_LIST = [
-    "onClick", "onLongClick", "onFocusChange", \
-    "onKey", "onTouch", "onCreateContextMenu"
+    ## UI input events
+    "onClick", "onLongClick", "onFocusChange", "onKey", "onTouch", "onDrag", \
+    "onCreateContextMenu", "onContextItemSelected", "onContextMenuClosed"\
+    "onCreateOptionsMenu", "onOptionsItemSelected", "onOptionsMenuClosed", \
+    "onMenuItemClick", \
+    "onDoubleTap", "onDoubleTapEvent", \
+    "onSingleTapConfirmed", "onLongPress", \
+    #"onScroll", "onTouchEvent", "onDragEvent", "onTrackballEvent", \
+   
+    #"onCreateDialog", "onCancel", "onDismiss"#, \
+
+    ## need to parse int to Int object for Helper->toString()
+    #"onKeyDown", "onKeyUp", "onKeyLongPress", "onKeyMutiple", \
     ]
 
 
