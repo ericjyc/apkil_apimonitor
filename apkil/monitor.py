@@ -141,14 +141,21 @@ TRACKING_LIST = [
     "onClick", "onLongClick", "onFocusChange", "onKey", "onTouch", "onDrag", \
     "onCreateContextMenu", "onContextItemSelected", "onContextMenuClosed", \
     "onCreateOptionsMenu", "onOptionsItemSelected", "onOptionsMenuClosed", \
-    "onMenuItemClick", \
+    "onMenuItemClick","onListItemClick", \
+    "onItemClick", "onItemLongClick", "onItemSelected", "onNothingSelected", \
+    "onChildClick", "onGroupClick", "onGroupCollapse", "onGroupExpand", \
     "onDoubleTap", "onDoubleTapEvent", \
     "onSingleTapConfirmed", "onLongPress", \
-    "onScroll" 
-    #, "onTouchEvent", "onDragEvent", "onTrackballEvent", \
-   
-    #"onCreateDialog", "onCancel", "onDismiss"#, \
+    "onScroll", "onScrollStateChanged", \
+    #"onTouchEvent", "onDragEvent", "onTrackballEvent", \
+    #"onCreateDialog", "onCancel", "onDismiss", \
 
+    "onServiceConnected", "onServiceDisconnected", \
+    "onDownloadStart", "onSendFinished", \
+
+    "onStartLoading", "onStopLoading", "onForceLoad", "onReset", \
+    "onCancelLoad", "onAbandon", "onLoadCanceled", "onLoadComplete", \
+    
     ## need to parse int to Int object for Helper->toString()
     #"onKeyDown", "onKeyUp", "onKeyLongPress", "onKeyMutiple", \
     ]
