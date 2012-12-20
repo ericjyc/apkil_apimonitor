@@ -550,6 +550,7 @@ class MethodNode(object):
         ## insert insn BEFORE index (default to prefix the list)
         ## instruction list will be updated immediately
         self.insns.insert(index, insn)
+        ## update label index
         for l in self.labels.values():
             if l.index >= index + direction:
                 l.index += 1
@@ -721,8 +722,7 @@ class LabelNode(object):
         self.__parse(line, index)
 
     def __repr__(self):
-        return "Lable: %s\n" % \
-                (self.name, )
+        return "Label: %s %s\n" % (self.name, self.index)
 
     def __parse(self, line, index):
         self.buf = line

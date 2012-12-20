@@ -130,7 +130,7 @@ OPCODE_MAP = {
         
 ## method tracking list
 APP_LIFECYCLE = [
-    #"<init>",
+    #"<init>", \
     "onCreate", "onStart", "onRestart", \
     "onResume", "onPause", "onStop", "onDestroy", \
     "onSaveInstanceState", "onRestoreInstanceState"
@@ -139,12 +139,13 @@ APP_LIFECYCLE = [
 TRACKING_LIST = [
     ## UI input events
     "onClick", "onLongClick", "onFocusChange", "onKey", "onTouch", "onDrag", \
-    "onCreateContextMenu", "onContextItemSelected", "onContextMenuClosed"\
+    "onCreateContextMenu", "onContextItemSelected", "onContextMenuClosed", \
     "onCreateOptionsMenu", "onOptionsItemSelected", "onOptionsMenuClosed", \
     "onMenuItemClick", \
     "onDoubleTap", "onDoubleTapEvent", \
     "onSingleTapConfirmed", "onLongPress", \
-    #"onScroll", "onTouchEvent", "onDragEvent", "onTrackballEvent", \
+    "onScroll"
+    #, "onTouchEvent", "onDragEvent", "onTrackballEvent", \
    
     #"onCreateDialog", "onCancel", "onDismiss"#, \
 
@@ -500,15 +501,17 @@ class APIMonitor(object):
                         
                         if (not "interface" in c.access) and (not "abstract" in c.access) and \
                            ((m.name in APP_LIFECYCLE) or (m.name in TRACKING_LIST)):
+                           #(not m.name == "<init>"): 
                             ## no return value
+                            ## direction value need being set to correctly update label index
                             if insn.opcode_name == "return-void":
-                                m.insert_insn(log_m, i, 0)
-                                m.insert_insn(InsnNode("move-result-object v0"), i, 0)
-                                m.insert_insn(concat_s, i, 0)
-                                m.insert_insn(InsnNode("move-result-object v0"), i, 0)
-                                m.insert_insn(time_m, i, 0)
+                                m.insert_insn(log_m, i, 1)
+                                m.insert_insn(InsnNode("move-result-object v0"), i, 1)
+                                m.insert_insn(concat_s, i, 1)
+                                m.insert_insn(InsnNode("move-result-object v0"), i, 1)
+                                m.insert_insn(time_m, i, 1)
                                 m.insert_insn(InsnNode("const-string v1, \"%s\"" \
-                                                    % (" - "+c.name+" "+m.name)), i, 0)
+                                                    % (" - "+c.name+" "+m.name)), i, 1)
                                 i += 6
                             ## return value on local register v0 or v1
                             elif (insn.obj=="v0") or (insn.obj=="v1"):
@@ -517,15 +520,15 @@ class APIMonitor(object):
                                     #print "[ret] " + insn.obj 
                                     if m.registers < (m.get_paras_reg_num()+4):    
                                         m.set_registers(m.get_paras_reg_num()+4)
-                                    m.insert_insn(InsnNode("move-object %s, v2" % insn.obj), i, 0)
-                                    m.insert_insn(log_m, i, 0)
-                                    m.insert_insn(InsnNode("move-result-object v0"), i, 0)
-                                    m.insert_insn(concat_s, i, 0)
-                                    m.insert_insn(InsnNode("move-result-object v0"), i, 0)
-                                    m.insert_insn(time_m, i, 0)
+                                    m.insert_insn(InsnNode("move-object %s, v2" % insn.obj), i, 1)
+                                    m.insert_insn(log_m, i, 1)
+                                    m.insert_insn(InsnNode("move-result-object v0"), i, 1)
+                                    m.insert_insn(concat_s, i, 1)
+                                    m.insert_insn(InsnNode("move-result-object v0"), i, 1)
+                                    m.insert_insn(time_m, i, 1)
                                     m.insert_insn(InsnNode("const-string v1, \"%s\"" \
-                                                        % (" - "+c.name+" "+m.name)), i, 0)
-                                    m.insert_insn(InsnNode("move-object v2, %s" % insn.obj), i, 0)
+                                                        % (" - "+c.name+" "+m.name)), i, 1)
+                                    m.insert_insn(InsnNode("move-object v2, %s" % insn.obj), i, 1)
                                     i += 8 
                                 ## return from a double-width (64-bit) value-returning method
                                 elif insn.opcode_name == "return-wide": 
@@ -533,42 +536,42 @@ class APIMonitor(object):
                                     ## "wide" object occupies 2 registers (64 bits)
                                     if m.registers < (m.get_paras_reg_num()+5):    
                                         m.set_registers(m.get_paras_reg_num()+5)
-                                    m.insert_insn(InsnNode("move-wide %s, v2" % insn.obj), i, 0)
-                                    m.insert_insn(log_m, i, 0)
-                                    m.insert_insn(InsnNode("move-result-object v0"), i, 0)
-                                    m.insert_insn(concat_s, i, 0)
-                                    m.insert_insn(InsnNode("move-result-object v0"), i, 0)
-                                    m.insert_insn(time_m, i, 0)
+                                    m.insert_insn(InsnNode("move-wide %s, v2" % insn.obj), i, 1)
+                                    m.insert_insn(log_m, i, 1)
+                                    m.insert_insn(InsnNode("move-result-object v0"), i, 1)
+                                    m.insert_insn(concat_s, i, 1)
+                                    m.insert_insn(InsnNode("move-result-object v0"), i, 1)
+                                    m.insert_insn(time_m, i, 1)
                                     m.insert_insn(InsnNode("const-string v1, \"%s\"" \
-                                                        % (" - "+c.name+" "+m.name)), i, 0)
-                                    m.insert_insn(InsnNode("move-wide v2, %s" % insn.obj), i, 0)
+                                                        % (" - "+c.name+" "+m.name)), i, 1)
+                                    m.insert_insn(InsnNode("move-wide v2, %s" % insn.obj), i, 1)
                                     i += 8 
                                 ## return from a single-width (32-bit) non-object value-returning method 
                                 elif insn.opcode_name == "return":
                                     #print "[ret] " + insn.obj
                                     if m.registers < (m.get_paras_reg_num()+4):    
                                         m.set_registers(m.get_paras_reg_num()+4)
-                                    m.insert_insn(InsnNode("move %s, v2" % insn.obj), i, 0)
-                                    m.insert_insn(log_m, i, 0)
-                                    m.insert_insn(InsnNode("move-result-object v0"), i, 0)
-                                    m.insert_insn(concat_s, i, 0)
-                                    m.insert_insn(InsnNode("move-result-object v0"), i, 0)
-                                    m.insert_insn(time_m, i, 0)
+                                    m.insert_insn(InsnNode("move %s, v2" % insn.obj), i, 1)
+                                    m.insert_insn(log_m, i, 1)
+                                    m.insert_insn(InsnNode("move-result-object v0"), i, 1)
+                                    m.insert_insn(concat_s, i, 1)
+                                    m.insert_insn(InsnNode("move-result-object v0"), i, 1)
+                                    m.insert_insn(time_m, i, 1)
                                     m.insert_insn(InsnNode("const-string v1, \"%s\"" \
-                                                        % (" - "+c.name+" "+m.name)), i, 0)
-                                    m.insert_insn(InsnNode("move v2, %s" % insn.obj), i, 0)
+                                                        % (" - "+c.name+" "+m.name)), i, 1)
+                                    m.insert_insn(InsnNode("move v2, %s" % insn.obj), i, 1)
                                     i += 8 
                             ## return value on local register other than v0/v1 or return parameter value
                             elif (insn.opcode_name == "return-object") or \
                                  (insn.opcode_name == "return-wide") or \
                                  (insn.opcode_name == "return"):
-                                m.insert_insn(log_m, i, 0)
-                                m.insert_insn(InsnNode("move-result-object v0"), i, 0)
-                                m.insert_insn(concat_s, i, 0)
-                                m.insert_insn(InsnNode("move-result-object v0"), i, 0)
-                                m.insert_insn(time_m, i, 0)
+                                m.insert_insn(log_m, i, 1)
+                                m.insert_insn(InsnNode("move-result-object v0"), i, 1)
+                                m.insert_insn(concat_s, i, 1)
+                                m.insert_insn(InsnNode("move-result-object v0"), i, 1)
+                                m.insert_insn(time_m, i, 1)
                                 m.insert_insn(InsnNode("const-string v1, \"%s\"" \
-                                                    % ("- "+c.name+" "+m.name)), i, 0)
+                                                    % ("- "+c.name+" "+m.name)), i, 1)
                                 i += 6 
                             else:
                                 print "[error] weird opcode name for a return stmt: %s" % insn.opcode_name 
@@ -667,46 +670,47 @@ class APIMonitor(object):
         method.add_insn(InsnNode("new-instance v%d, Ljava/lang/StringBuilder;" % ri))
         method.add_insn(InsnNode("invoke-direct {v%d}, Ljava/lang/StringBuilder;-><init>()V" % ri))
 
-        method.add_insn(InsnNode("const-string v%d,\"%s(\"" % (ri + 1, m.split('(', 1)[0])))
+        ## api name
+        method.add_insn(InsnNode("const-string v%d,\"%s\"" % (ri + 1, m.split('(', 1)[0])))
         append_i = InsnNode("invoke-virtual {v%d, v%d}, \
                         Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;" \
                         % (ri, ri + 1))
         method.add_insn(append_i)
         
         ## print parameters
-        pi = 1
-        for k in range(1, para_num):
-            p = method.paras[k]
-            method.add_insn(InsnNode("const-string v%d, \"%s=\"" % (ri + 1, p.get_desc())))
-            method.add_insn(append_i)
+        #pi = 1
+        #for k in range(1, para_num):
+        #    p = method.paras[k]
+        #    method.add_insn(InsnNode("const-string v%d, \"%s=\"" % (ri + 1, p.get_desc())))
+        #    method.add_insn(append_i)
 
-            if p.basic and p.dim == 0:
-                if p.words == 1:
-                    method.add_insn(InsnNode("invoke-static {p%d}, \
-                                        Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
-                                        % (pi, p.get_desc())))
-                    pi += 1
-                else:
-                    method.add_insn(InsnNode("invoke-static {p%d, p%d}, \
-                                        Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
-                                        % (pi, pi + 1, p.get_desc())))
-                    pi += 2
-                method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
-                method.add_insn(append_i)
-            else:
-                method.add_insn(InsnNode("invoke-static {p%d}, \
-                                    Ldroidbox/apimonitor/Helper;->toString(Ljava/lang/Object;)Ljava/lang/String;" \
-                                    % (pi, )))
-                pi += 1
-                method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
-                method.add_insn(append_i)
+        #    if p.basic and p.dim == 0:
+        #        if p.words == 1:
+        #            method.add_insn(InsnNode("invoke-static {p%d}, \
+        #                                Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
+        #                                % (pi, p.get_desc())))
+        #            pi += 1
+        #        else:
+        #            method.add_insn(InsnNode("invoke-static {p%d, p%d}, \
+        #                                Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
+        #                                % (pi, pi + 1, p.get_desc())))
+        #            pi += 2
+        #        method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
+        #        method.add_insn(append_i)
+        #    else:
+        #        method.add_insn(InsnNode("invoke-static {p%d}, \
+        #                            Ldroidbox/apimonitor/Helper;->toString(Ljava/lang/Object;)Ljava/lang/String;" \
+        #                            % (pi, )))
+        #        pi += 1
+        #        method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
+        #        method.add_insn(append_i)
 
-            if k < para_num - 1:
-                method.add_insn(InsnNode("const-string v%d, \" | \"" % (ri + 1)))
-                method.add_insn(append_i)
+        #    if k < para_num - 1:
+        #        method.add_insn(InsnNode("const-string v%d, \" | \"" % (ri + 1)))
+        #        method.add_insn(append_i)
 
-        method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
-        method.add_insn(append_i)
+        #method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
+        #method.add_insn(append_i)
 
         ## print return value
         p = method.ret
@@ -793,45 +797,46 @@ class APIMonitor(object):
         method.add_insn(InsnNode("new-instance v%d, Ljava/lang/StringBuilder;" % ri))
         method.add_insn(InsnNode("invoke-direct {v%d}, Ljava/lang/StringBuilder;-><init>()V" % ri))
 
-        method.add_insn(InsnNode("const-string v%d,\"%s(\"" % (ri + 1, m.split('(', 1)[0])))
+        ## api name
+        method.add_insn(InsnNode("const-string v%d,\"%s\"" % (ri + 1, m.split('(', 1)[0])))
         append_i = InsnNode("invoke-virtual {v%d, v%d}, \
                         Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;" \
                         % (ri, ri + 1))
         method.add_insn(append_i)
         
         ## print parameters
-        pi = 0
-        for k in range(0, para_num):
-            p = method.paras[k]
-            method.add_insn(InsnNode("const-string v%d, \"%s=\"" % (ri + 1, p.get_desc())))
-            method.add_insn(append_i)
+        #pi = 0
+        #for k in range(0, para_num):
+        #    p = method.paras[k]
+        #    method.add_insn(InsnNode("const-string v%d, \"%s=\"" % (ri + 1, p.get_desc())))
+        #    method.add_insn(append_i)
 
-            if p.basic and p.dim == 0:
-                if p.words == 1:
-                    method.add_insn(InsnNode("invoke-static {p%d}, \
-                                        Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" % (pi, p.get_desc())))
-                    pi += 1
-                else:
-                    method.add_insn(InsnNode("invoke-static {p%d, p%d}, \
-                                        Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
-                                        % (pi, pi + 1, p.get_desc())))
-                    pi += 2
-                method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
-                method.add_insn(append_i)
-            else:
-                method.add_insn(InsnNode("invoke-static {p%d}, \
-                                    Ldroidbox/apimonitor/Helper;->toString(Ljava/lang/Object;)Ljava/lang/String;" \
-                                    % (pi, )))
-                pi += 1
-                method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
-                method.add_insn(append_i)
+        #    if p.basic and p.dim == 0:
+        #        if p.words == 1:
+        #            method.add_insn(InsnNode("invoke-static {p%d}, \
+        #                                Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" % (pi, p.get_desc())))
+        #            pi += 1
+        #        else:
+        #            method.add_insn(InsnNode("invoke-static {p%d, p%d}, \
+        #                                Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
+        #                                % (pi, pi + 1, p.get_desc())))
+        #            pi += 2
+        #        method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
+        #        method.add_insn(append_i)
+        #    else:
+        #        method.add_insn(InsnNode("invoke-static {p%d}, \
+        #                            Ldroidbox/apimonitor/Helper;->toString(Ljava/lang/Object;)Ljava/lang/String;" \
+        #                            % (pi, )))
+        #        pi += 1
+        #        method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
+        #        method.add_insn(append_i)
 
-            if k < para_num - 1:
-                method.add_insn(InsnNode("const-string v%d, \" | \"" % (ri + 1)))
-                method.add_insn(append_i)
+        #    if k < para_num - 1:
+        #        method.add_insn(InsnNode("const-string v%d, \" | \"" % (ri + 1)))
+        #        method.add_insn(append_i)
 
-        method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
-        method.add_insn(append_i)
+        #method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
+        #method.add_insn(append_i)
 
         ## print return value
         p = method.ret
@@ -909,46 +914,47 @@ class APIMonitor(object):
         method.add_insn(InsnNode("new-instance v%d, Ljava/lang/StringBuilder;" % ri))
         method.add_insn(InsnNode("invoke-direct {v%d}, Ljava/lang/StringBuilder;-><init>()V" % ri))
 
-        method.add_insn(InsnNode("const-string v%d,\"%s(\"" % (ri + 1, m.split('(', 1)[0])))
+        ## api name
+        method.add_insn(InsnNode("const-string v%d,\"%s\"" % (ri + 1, m.split('(', 1)[0])))
         append_i = InsnNode("invoke-virtual {v%d, v%d}, \
                         Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;" \
                         % (ri, ri + 1))
         method.add_insn(append_i)
         
         ## print parameters
-        pi = 0
-        for k in range(0, para_num):
-            p = method.paras[k]
-            method.add_insn(InsnNode("const-string v%d, \"%s=\"" % (ri + 1, p.get_desc())))
-            method.add_insn(append_i)
+        #pi = 0
+        #for k in range(0, para_num):
+        #    p = method.paras[k]
+        #    method.add_insn(InsnNode("const-string v%d, \"%s=\"" % (ri + 1, p.get_desc())))
+        #    method.add_insn(append_i)
 
-            if p.basic and p.dim == 0:
-                if p.words == 1:
-                    method.add_insn(InsnNode("invoke-static {p%d}, \
-                                        Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
-                                        % (pi, p.get_desc())))
-                    pi += 1
-                else:
-                    method.add_insn(InsnNode("invoke-static {p%d, p%d}, \
-                                        Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
-                                        % (pi, pi + 1, p.get_desc())))
-                    pi += 2
-                method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
-                method.add_insn(append_i)
-            else:
-                method.add_insn(InsnNode("invoke-static {p%d}, \
-                                    Ldroidbox/apimonitor/Helper;->toString(Ljava/lang/Object;)Ljava/lang/String;" \
-                                    % (pi, )))
-                pi += 1
-                method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
-                method.add_insn(append_i)
+        #    if p.basic and p.dim == 0:
+        #        if p.words == 1:
+        #            method.add_insn(InsnNode("invoke-static {p%d}, \
+        #                                Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
+        #                                % (pi, p.get_desc())))
+        #            pi += 1
+        #        else:
+        #            method.add_insn(InsnNode("invoke-static {p%d, p%d}, \
+        #                                Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
+        #                                % (pi, pi + 1, p.get_desc())))
+        #            pi += 2
+        #        method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
+        #        method.add_insn(append_i)
+        #    else:
+        #        method.add_insn(InsnNode("invoke-static {p%d}, \
+        #                            Ldroidbox/apimonitor/Helper;->toString(Ljava/lang/Object;)Ljava/lang/String;" \
+        #                            % (pi, )))
+        #        pi += 1
+        #        method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
+        #        method.add_insn(append_i)
 
-            if k < para_num - 1:
-                method.add_insn(InsnNode("const-string v%d, \" | \"" % (ri + 1)))
-                method.add_insn(append_i)
+        #    if k < para_num - 1:
+        #        method.add_insn(InsnNode("const-string v%d, \" | \"" % (ri + 1)))
+        #        method.add_insn(append_i)
 
-        method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
-        method.add_insn(append_i)
+        #method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
+        #method.add_insn(append_i)
 
         ## print return value
         p = method.ret
@@ -1050,46 +1056,48 @@ class APIMonitor(object):
 
         method.add_insn(InsnNode("new-instance v%d, Ljava/lang/StringBuilder;" % ri))
         method.add_insn(InsnNode("invoke-direct {v%d}, Ljava/lang/StringBuilder;-><init>()V" % ri))
-        method.add_insn(InsnNode("const-string v%d,\"%s(\"" % (ri + 1, m.split('(', 1)[0])))
+        
+        ## api name
+        method.add_insn(InsnNode("const-string v%d,\"%s\"" % (ri + 1, m.split('(', 1)[0])))
         append_i = InsnNode("invoke-virtual {v%d, v%d}, \
                         Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;" \
                         % (ri, ri + 1))
         method.add_insn(append_i)
         
         ## print parameters
-        pi = 0
-        for k in range(0, para_num):
-            p = method.paras[k]
-            method.add_insn(InsnNode("const-string v%d, \"%s=\"" % (ri + 1, p.get_desc())))
-            method.add_insn(append_i)
+        #pi = 0
+        #for k in range(0, para_num):
+        #    p = method.paras[k]
+        #    method.add_insn(InsnNode("const-string v%d, \"%s=\"" % (ri + 1, p.get_desc())))
+        #    method.add_insn(append_i)
 
-            if p.basic and p.dim == 0:
-                if p.words == 1:
-                    method.add_insn(InsnNode("invoke-static {p%d}, \
-                                        Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
-                                        % (pi, p.get_desc())))
-                    pi += 1
-                else:
-                    method.add_insn(InsnNode("invoke-static {p%d, p%d}, \
-                                        Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
-                                        % (pi, pi + 1, p.get_desc())))
-                    pi += 2
-                method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
-                method.add_insn(append_i)
-            else:
-                method.add_insn(InsnNode("invoke-static {p%d}, \
-                                    Ldroidbox/apimonitor/Helper;->toString(Ljava/lang/Object;)Ljava/lang/String;" \
-                                    % (pi, )))
-                pi += 1
-                method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
-                method.add_insn(append_i)
+        #    if p.basic and p.dim == 0:
+        #        if p.words == 1:
+        #            method.add_insn(InsnNode("invoke-static {p%d}, \
+        #                                Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
+        #                                % (pi, p.get_desc())))
+        #            pi += 1
+        #        else:
+        #            method.add_insn(InsnNode("invoke-static {p%d, p%d}, \
+        #                                Ljava/lang/String;->valueOf(%s)Ljava/lang/String;" \
+        #                                % (pi, pi + 1, p.get_desc())))
+        #            pi += 2
+        #        method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
+        #        method.add_insn(append_i)
+        #    else:
+        #        method.add_insn(InsnNode("invoke-static {p%d}, \
+        #                            Ldroidbox/apimonitor/Helper;->toString(Ljava/lang/Object;)Ljava/lang/String;" \
+        #                            % (pi, )))
+        #        pi += 1
+        #        method.add_insn(InsnNode("move-result-object v%d" % (ri + 1)))
+        #        method.add_insn(append_i)
 
-            if k < para_num - 1:
-                method.add_insn(InsnNode("const-string v%d, \" | \"" % (ri + 1)))
-                method.add_insn(append_i)
+        #    if k < para_num - 1:
+        #        method.add_insn(InsnNode("const-string v%d, \" | \"" % (ri + 1)))
+        #        method.add_insn(append_i)
 
-        method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
-        method.add_insn(append_i)
+        #method.add_insn(InsnNode("const-string v%d, \")\"" % (ri + 1)))
+        #method.add_insn(append_i)
 
         ## print return value
         p = method.ret
