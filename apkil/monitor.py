@@ -144,7 +144,7 @@ TRACKING_LIST = [
     "onMenuItemClick", \
     "onDoubleTap", "onDoubleTapEvent", \
     "onSingleTapConfirmed", "onLongPress", \
-    "onScroll"
+    "onScroll" 
     #, "onTouchEvent", "onDragEvent", "onTrackballEvent", \
    
     #"onCreateDialog", "onCancel", "onDismiss"#, \
