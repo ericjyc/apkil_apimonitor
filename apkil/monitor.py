@@ -394,7 +394,7 @@ class APIMonitor(object):
                     if m.name in TRACKING_LIST:
                         m.insert_insn(InsnNode("move-result-object v1"))
                         m.insert_insn(concat_s)
-                        m.insert_insn(InsnNode("const-string v0, \"%s\"" % (" + "+c.name+" "+m.name+"->")))
+                        m.insert_insn(InsnNode("const-string v0, \"%s\"" % (" + "+c.name+" "+m.name+" ")))
                         ## get the 1st parameter (usually the action targeted object)
                         m.insert_insn(InsnNode("move-result-object v1"))
                         insn_m = InsnNode("invoke-static {p1}, \
@@ -578,7 +578,7 @@ class APIMonitor(object):
                                 m.insert_insn(InsnNode("move-result-object v0"), i, 1)
                                 m.insert_insn(time_m, i, 1)
                                 m.insert_insn(InsnNode("const-string v1, \"%s\"" \
-                                                    % ("- "+c.name+" "+m.name)), i, 1)
+                                                    % (" - "+c.name+" "+m.name)), i, 1)
                                 i += 6 
                             else:
                                 print "[error] weird opcode name for a return stmt: %s" % insn.opcode_name 
