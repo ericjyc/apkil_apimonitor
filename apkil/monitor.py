@@ -373,6 +373,12 @@ class APIMonitor(object):
                    ((m.name in APP_LIFECYCLE) or (m.name in TRACKING_LIST)):
                    #(not m.name == "<init>"): 
                     print "Track: " + c.name + " " + m.name 
+                    ## About registers: http://code.google.com/p/smali/wiki/Registers
+                    ## About moving register values (be careful about register # and register size): 
+                    ## http://source.android.com/tech/dalvik/dalvik-bytecode.html 
+                    ## Error about 'all register args must fit in 4 bits' is saying that that targeted
+                    ## register is out of the register size; check if all 'move' operations are legal.
+                    ## This kind of error happens usually when handling parameters (p0, p1,...)
                     ## registers = locals (v0, v1,...) + self (p0) + parameters (p1,...)
                     if m.registers < (m.get_paras_reg_num()+3):    
                         m.set_registers(m.get_paras_reg_num()+3)
@@ -396,11 +402,13 @@ class APIMonitor(object):
                         m.insert_insn(concat_s)
                         m.insert_insn(InsnNode("const-string v0, \"%s\"" % (" + "+c.name+" "+m.name+" ")))
                         ## get the 1st parameter (usually the action targeted object)
+                        ## p1 could be out of 8-bit range (> v15)
                         m.insert_insn(InsnNode("move-result-object v1"))
-                        insn_m = InsnNode("invoke-static {p1}, \
+                        insn_m = InsnNode("invoke-static {v1}, \
                                     Ldroidbox/apimonitor/Helper;->toString(Ljava/lang/Object;)Ljava/lang/String;")
                         m.insert_insn(insn_m)
-                        i +=10
+                        m.insert_insn(InsnNode("move-object/from16 v1, p1"))
+                        i +=11
                     else:
                         m.insert_insn(InsnNode("const-string v1, \"%s\"" % (" + "+c.name+" "+m.name)))
                         i +=6

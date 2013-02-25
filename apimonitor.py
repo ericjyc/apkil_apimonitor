@@ -110,6 +110,8 @@ s = smali.SmaliTree(level, smalidir)
 s = mo.inject(s, level)
 s.save(new_smalidir)
 
+print "[Create new dex file]"
+print "java -jar " + smali_jar + " -a " + str(level) + " -o " + new_dexpath + " " + new_smalidir + "\n"
 call(args=['java', '-jar', smali_jar,
 	   '-a', str(level), '-o', new_dexpath, new_smalidir])
 
@@ -120,6 +122,6 @@ a.new_zip(filename=new_apk,
 apk.sign_apk(new_apk, cert_path, "apkil", "apkilapkil" )
 print "\n[Instrumented apk]\n%s" % new_apk
 
-print "\n[Install new apk]"
-os.system("./install.script " + new_apk)
+#print "\n[Install new apk]"
+#os.system("./install.script " + new_apk)
 
