@@ -110,8 +110,8 @@ s = smali.SmaliTree(level, smalidir)
 s = mo.inject(s, level)
 s.save(new_smalidir)
 
-print "[Create new dex file]"
-print "java -jar " + smali_jar + " -a %d" % level + " -o " + new_dexpath + " " + new_smalidir + "\n"
+print "\n[Create new dex file]"
+print "java -jar " + smali_jar + " -a %d" % level + " -o " + new_dexpath + " " + new_smalidir
 call(args=['java', '-jar', smali_jar,
 	   '-a', str(level), '-o', new_dexpath, new_smalidir])
 
